@@ -12,7 +12,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class CRUDHR {
+public class CRUDEmployees {
     
     public boolean CreateDatabase(Connection connection, InputStream input) 
     throws IOException, ConnectException, SQLException {
@@ -58,10 +58,10 @@ public class CRUDHR {
         return dupRecord;
     }
 
-    public void InsertEmployee(Connection connection, String TableName, Employees employee) 
+    public void InsertEmployee(Connection connection, Employees employee) 
     throws ConnectException, SQLException {
 
-        String query = "INSERT INTO " + TableName 
+        String query = "INSERT INTO EMPLOYEES " 
                     + " (EMPLOYEE_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE_INT, HIRE_DATE,"
                     + "JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID, BONUS)"
                     + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -214,6 +214,92 @@ public class CRUDHR {
             } 
         }
             
+    }
+
+    public void UpdateEmployee(Connection connection, int opcio, Employees employees )
+    throws ConnectException, SQLException {
+
+        String query = "";
+
+        boolean autocommitvalue = connection.getAutoCommit();
+
+        connection.setAutoCommit(false);
+
+        System.out.println("opcio: " + opcio);
+
+        switch (opcio) {
+            case 1:
+                query = "UPDATE EMPLOYEES SET EMAIL = ? , PHONE_INT = ? WHERE EMPLOYEE_ID = ?";
+
+                try (PreparedStatement prepstat = connection.prepareStatement(query)) {
+                    prepstat.setString(1, employees.getEmail());
+                    prepstat.setString(2, employees.getPhoneInt());
+                    prepstat.setInt(3, employees.getEmployeeId());
+
+                    prepstat.executeUpdate();
+
+                    connection.commit();
+                    
+                    System.out.println("Empleat modifcat amb èxit");
+
+                } catch (SQLException sqle) {
+                    System.out.println(sqle.getMessage());
+                    connection.rollback();
+                }
+
+                break;
+            
+            case 2:
+                query = "UPDATE EMPLOYEES SET SALARY = ?, COMMISSION_PCT = ? WHERE EMPLOYEE_ID = ?";
+
+            try (PreparedStatement prepstat = connection.prepareStatement(query)) {
+                prepstat.setFloat(1, employees.getSalary());
+                prepstat.setFloat(2, employees.getCommissionPct());
+                prepstat.setInt(3, employees.getEmployeeId());
+
+                prepstat.executeUpdate();
+
+                connection.commit();
+                    
+                System.out.println("Empleat modifcat amb èxit");
+
+            } catch (SQLException sqle) {
+                System.out.println(sqle.getMessage());
+                connection.rollback();                    
+            }
+
+            break;
+        }
+                
+        connection.setAutoCommit(autocommitvalue);
+
+    }
+
+    public void DeleteEmployee(Connection connection, Employees employees )
+    throws ConnectException, SQLException {
+
+        boolean autocommitvalue = connection.getAutoCommit();
+
+        connection.setAutoCommit(false);
+
+        String query = "DELETE FROM EMPLOYEES WHERE EMPLOYEE_ID = ?";
+
+        try (PreparedStatement prepstat = connection.prepareStatement(query)) {
+            prepstat.setInt(1, employees.getEmployeeId());
+
+            prepstat.executeUpdate();
+
+            connection.commit();
+                
+            System.out.println("Empleat esborrat amb èxit");
+
+        } catch (SQLException sqle) {
+            System.out.println(sqle.getMessage());
+            connection.rollback();                    
+        }
+                
+        connection.setAutoCommit(autocommitvalue);
+
     }
         
 }

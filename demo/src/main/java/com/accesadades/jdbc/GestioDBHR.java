@@ -42,7 +42,7 @@ public class GestioDBHR {
         
                             InputStream input_sch = GestioDBHR.class.getClassLoader().getResourceAsStream(File_create_script);
         
-                            CRUDHR crudbhr = new CRUDHR();
+                            CRUDEmployees crudbhr = new CRUDEmployees();
                             //Aquí farem la creació de la database i de les taules, a més d'inserir dades
                             crudbhr.CreateDatabase(connection,input_sch);
                             while (sortirapp == false) {
@@ -62,7 +62,7 @@ public class GestioDBHR {
         }
     }
 
-    public static void MenuOptions(BufferedReader br, CRUDHR crudbhr, Connection connection) 
+    public static void MenuOptions(BufferedReader br, CRUDEmployees crudbhr, Connection connection) 
     throws NumberFormatException, IOException, SQLException, InterruptedException {
 
         Terminal terminal = TerminalBuilder.builder().system(true).build();
@@ -91,6 +91,12 @@ public class GestioDBHR {
         printScreen(terminal, message);
 
         message = "4. INSERIR NOU REGISTRE";
+        printScreen(terminal, message);
+
+        message = "5. MODIFICAR REGISTRE";
+        printScreen(terminal, message);
+
+        message = "6. ESBORRAR REGISTRE";
         printScreen(terminal, message);
 
         message = "9. SORTIR";
@@ -132,6 +138,14 @@ public class GestioDBHR {
                 MenuInsert(br,crudbhr,connection);
                 break;
 
+            case 5:
+                MenuUpdateDelete(br,crudbhr,connection,5);
+                break;
+
+            case 6:
+                MenuUpdateDelete(br,crudbhr,connection,6);
+                break;
+
             case 9:
                 //sortim
                 System.out.println("Adéu!!");
@@ -153,7 +167,7 @@ public class GestioDBHR {
         System.out.println();
     }
 
-    public static void MenuSelect(BufferedReader br, CRUDHR crudbhr,Connection connection) 
+    public static void MenuSelect(BufferedReader br, CRUDEmployees crudbhr,Connection connection) 
     throws SQLException, NumberFormatException, IOException {
 
         int opcio = 0;
@@ -205,7 +219,7 @@ public class GestioDBHR {
         }
     }
 
-    public static void MenuSelectAltres(BufferedReader br, CRUDHR crudbhr,Connection connection) 
+    public static void MenuSelectAltres(BufferedReader br, CRUDEmployees crudbhr,Connection connection) 
     throws SQLException, NumberFormatException, IOException {
 
         int opcio = 0;
@@ -238,7 +252,7 @@ public class GestioDBHR {
 
     }
 
-    public static void MenuInsert(BufferedReader br, CRUDHR crudbhr,Connection connection) 
+    public static void MenuInsert(BufferedReader br, CRUDEmployees crudbhr,Connection connection) 
     throws SQLException, NumberFormatException, IOException {
 
         boolean insertMore = true;
@@ -420,7 +434,7 @@ public class GestioDBHR {
             Employees emp = new Employees(idEmpl, nomEmp, cognomEmp, emailEmp, telEmp, hireDateEmp, jobIdEmp, 
             salariEmpl, comPCTEmpl, idManagerEmpl, idDeptEmpl, bonusEmp);
 
-            crudbhr.InsertEmployee(connection, "Employees", emp);
+            crudbhr.InsertEmployee(connection, emp);
 
             System.out.println("Vols afegir un altre empleat?");
 
@@ -431,5 +445,67 @@ public class GestioDBHR {
         }
                             
         }
+
+        public static void MenuUpdateDelete(BufferedReader br, CRUDEmployees crudbhr,Connection connection, int updDel) 
+        throws SQLException, NumberFormatException, IOException {
+
+            Employees emp = new Employees();
+
+            System.out.println("Digues la id de l'empleat: ");
+
+            emp.setEmployeeId(Integer.parseInt(br.readLine()));
+
+            if (updDel == 5) {
+
+                boolean updateValOpt = true;
+                boolean updateMore = true;
+
+                while (updateMore == true) {
+
+                    while (updateValOpt) {
+
+                        System.out.println("Quina de les següents modificacions vols fer?: ");
+                        System.out.println("1. Telèfon i email");
+                        System.out.println("2. Salari i comissions");
+
+                        int opcUpdate = Integer.parseInt(br.readLine());
+
+                        if (opcUpdate == 1) {
+                            System.out.println("Quin és el nou email?: ");
+                            emp.setEmail(br.readLine());
+                            System.out.println("Quin és el nou telèfon?: ");
+                            emp.setPhoneInt(br.readLine());
+                            crudbhr.UpdateEmployee(connection,opcUpdate,emp);
+                            updateValOpt = false;
+                        } else if (opcUpdate == 2) {
+                            System.out.println("Quin és el nou salari?: ");
+                            emp.setSalary(Float.parseFloat(br.readLine()));
+                            System.out.println("Quines són les noves comissions?: ");
+                            emp.setCommissionPct(Float.parseFloat(br.readLine()));
+                            crudbhr.UpdateEmployee(connection,opcUpdate,emp);
+                            updateValOpt = false;
+                        } else {
+                            System.out.println("Opció no vàlida");
+                        }
+                    } 
+
+                    System.out.println(updateMore);
+
+                    System.out.println("Vols fer cap més modificació del mateix empleat? (S o N): ");
+
+                    if (br.readLine().equalsIgnoreCase("N")) {
+                        updateMore = false;
+                    } else {
+                        updateValOpt = true;
+                    }
+
+                }
+                    
+            } else if (updDel == 6) {
+
+                crudbhr.DeleteEmployee(connection, emp);
+            }
+                
+        } 
 
 }

@@ -15,7 +15,8 @@ public class Employees {
     private Integer departmentId; // DEPARTMENT_ID
     private String bonus; // BONUS
 
-    // Constructor completo
+    public Employees() {}
+    
     public Employees(int employeeId, String firstName, String lastName, String email, String phoneInt,
                   String hireDate, String jobId, Float salary, Float commissionPct,
                   Integer managerId, Integer departmentId, String bonus) {
